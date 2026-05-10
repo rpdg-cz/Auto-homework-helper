@@ -1,1 +1,2 @@
-
+# This script currently uses only Python standard library modules.
+# No third-party packages are required for question_helper.py.
