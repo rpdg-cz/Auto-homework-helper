@@ -1,0 +1,21 @@
+{
+  "deepseek": {
+    "api_key": "",
+    "base_url": "https://api.deepseek.com",
+    "model": "",
+    "prompt_file": "deepseek_prompt.txt"
+  },
+  "siliconflow": {
+    "api_key": "",
+    "base_url": "https://api.siliconflow.cn/v1",
+    "model": ""
+  },
+  "ocr": {
+    "prompt_file": "prompt.txt",
+    "detail": "high"
+  },
+  "input": {
+    "image_dir": "input_images"
+  },
+  "output_dir": "outputs"
+}
