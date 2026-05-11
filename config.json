@@ -8,7 +8,7 @@
   "siliconflow": {
     "api_key": "YOUR_SILICONFLOW_API_KEY",
     "base_url": "https://api.siliconflow.cn/v1",
-    "model": "zai-org/GLM-4.5V"
+    "model": "YOUR_MODEL"
   },
   "ocr": {
     "prompt_file": "prompt.txt",
