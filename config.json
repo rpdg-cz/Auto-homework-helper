@@ -1,14 +1,14 @@
 {
   "deepseek": {
-    "api_key": "",
+    "api_key": "YOUR_DEEPSEEK_API_KEY",
     "base_url": "https://api.deepseek.com",
-    "model": "",
+    "model": "deepseek-v4-flash",
     "prompt_file": "deepseek_prompt.txt"
   },
   "siliconflow": {
-    "api_key": "",
+    "api_key": "YOUR_SILICONFLOW_API_KEY",
     "base_url": "https://api.siliconflow.cn/v1",
-    "model": ""
+    "model": "zai-org/GLM-4.5V"
   },
   "ocr": {
     "prompt_file": "prompt.txt",

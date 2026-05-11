@@ -1,135 +1,152 @@
-# question-helper - 副本
+# question-helper
 
-这是一个本地图片处理版工具，当前流程是：
+这是一个题目截图采集与解析的本地辅助工具集合。
 
-1. 从 `input_images` 目录读取图片
-2. 使用 SiliconFlow 视觉模型做图片转文字
-3. 将 OCR 文本发送给 DeepSeek 模型继续处理
-4. 把原图副本、OCR 文本和最终结果写入 `outputs`
+该仓库包含三个主要部分：
+
+1. `web-capture-tool/web_capture.py`：从网页截图并提取可见文字。
+2. `question_helper.py`：从 `input_images` 读取图片，调用 OCR 提取文字，并将结果发送给 DeepSeek 解析。
+3. `run_all.py`：一个总控脚本，先调用 `web_capture.py` 生成 `input_images`，再调用 `question_helper.py` 处理图片。
 
 ## 目录结构
 
-- [question_helper.py](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\question_helper.py)
-- [config.json](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\config.json)
-- [prompt.txt](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\prompt.txt)
-- [deepseek_prompt.txt](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\deepseek_prompt.txt)
-- [input_images](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\input_images)
-- [outputs](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\outputs)
+- `config.json`：`question_helper.py` 的主配置文件。
+- `prompt.txt`：OCR 提示词。
+- `deepseek_prompt.txt`：DeepSeek 解析提示词。
+- `question_helper.py`：题目图片处理入口。
+- `run_all.py`：集成网页截图和题目处理的控制入口。
+- `input_images/`：题目截图输入目录。
+- `outputs/`：`question_helper.py` 的处理结果输出目录。
+- `web-capture-tool/`：网页截图工具目录。
 
-## 配置文件
+## 运行前准备
 
-主要配置在 [config.json](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\config.json)。
+### 1. 安装 Python
 
-你需要填写这些字段：
+请确保已安装 Python 3.8+。
+
+### 2. 安装 `web-capture-tool` 依赖
+
+进入网页截图工具目录并创建虚拟环境：
+
+```powershell
+cd web-capture-tool
+python -m venv .venv
+.\.venv\Scripts\Activate.ps1
+pip install -r requirements.txt
+python -m playwright install chromium
+```
+
+### 3. 配置 DeepSeek 和 OCR
+
+修改根目录下的 `config.json`，确保以下字段正确填写：
 
 - `deepseek.api_key`
+- `deepseek.base_url`
 - `deepseek.model`
 - `siliconflow.api_key`
 - `siliconflow.model`
+- `ocr.prompt_file`
+- `input.image_dir`
 
-配置说明：
+如果你使用本地 OCR，需要确认系统安装了对应的 OCR 工具，并在配置中正确设置。
 
-- `deepseek.base_url` 默认是 `https://api.deepseek.com`
-- `siliconflow.base_url` 默认是 `https://api.siliconflow.cn/v1`
-- `ocr.prompt_file` 指向 OCR 提示词文件，默认是 `prompt.txt`
-- `deepseek.prompt_file` 指向 DeepSeek 提示词文件，默认是 `deepseek_prompt.txt`
-- `input.image_dir` 是输入图片目录，默认是 `input_images`
-- `output_dir` 是输出目录，默认是 `outputs`
+## 使用说明
 
-## 输入图片
+### 1. 只运行网页截图
 
-把要处理的图片放到：
-
-`C:\Users\Lycro\Desktop\work\question-helper - 副本\input_images`
-
-支持格式：
-
-- `.png`
-- `.jpg`
-- `.jpeg`
-- `.bmp`
-- `.webp`
-- `.tif`
-- `.tiff`
-
-## 运行方式
-
-进入目录：
+进入根目录后：
 
 ```powershell
-cd "C:\Users\Lycro\Desktop\work\question-helper - 副本"
+cd c:\Users\Lycro\Desktop\work\question-helper
+python web-capture-tool\web_capture.py
 ```
 
-如果已经有虚拟环境，推荐直接用虚拟环境里的 Python：
+可选参数：
+
+- `--config`：指定 `web_capture.py` 使用的配置文件，默认 `web-capture-tool/config.json`
+- `--site`：仅运行指定站点
+- `--list-sites`：列出配置中的网站
+
+> `web_capture.py` 在程序启动时会清空 `output_dir` 目录，确保旧截图不会影响本次采集。
+
+### 2. 只运行题目处理
 
 ```powershell
-.\.venv\Scripts\python.exe question_helper.py --list-images
+python question_helper.py
 ```
 
-处理全部图片：
+可选参数：
+
+- `--config`：指定配置文件，默认 `config.json`
+- `--list-images`：列出 `input_images` 中可处理的图片
+- `--image`：只处理单张图片
+- `--output-dir`：覆盖配置中的输出目录
+
+### 3. 运行总控脚本（推荐）
 
 ```powershell
-.\.venv\Scripts\python.exe question_helper.py
+python run_all.py
 ```
 
-只处理一张图片：
+该脚本会按顺序执行：
+
+1. 使用 `web_capture.py` 从网页截图，输出到 `input_images`。
+2. 将 `input_images` 目录中的截图逐一交给 `question_helper.py` 处理。
+
+如果需要指定配置文件或脚本路径，可使用：
 
 ```powershell
-.\.venv\Scripts\python.exe question_helper.py --image "example.png"
+python run_all.py --web-config web-capture-tool/config.json --question-config config.json
 ```
 
-如果要临时改输出目录：
+## `web-capture-tool` 配置
 
-```powershell
-.\.venv\Scripts\python.exe question_helper.py --output-dir "my_outputs"
+`web-capture-tool/config.json` 示例：
+
+```json
+{
+  "output_dir": "outputs",
+  "sites": [
+    {
+      "name": "示例网页",
+      "enabled": true,
+      "url": "https://example.com",
+      "mode": "both",
+      "wait_ms": 2000,
+      "headless": false,
+      "selector": null
+    }
+  ]
+}
 ```
 
-## 输出说明
+字段说明：
 
-每次正式运行前，程序都会先清空当前输出目录。
+- `name`：站点名称
+- `enabled`：是否启用
+- `url`：网页地址
+- `mode`：`screenshot` / `text` / `both`
+- `wait_ms`：额外等待时间（毫秒）
+- `headless`：是否无头浏览器
+- `selector`：可选 CSS 选择器，仅截取指定区域
 
-默认输出目录：
+## `question_helper.py` 输入与输出
 
-`C:\Users\Lycro\Desktop\work\question-helper - 副本\outputs`
+- 输入目录：`input_images/`
+- 支持图片格式：`.png`、`.jpg`、`.jpeg`、`.bmp`、`.webp`、`.tif`、`.tiff`
+- 输出目录：默认 `outputs/`
+- 每张图片会生成一个单独目录，包含：
+  - `source-<timestamp>.<ext>`
+  - `ocr-<timestamp>.txt`
+  - `result-<timestamp>.md`
 
-每张图片会生成一个单独子目录，例如：
+## 其他说明
 
-- `outputs/example/source-时间戳.png`
-- `outputs/example/ocr-时间戳.txt`
-- `outputs/example/result-时间戳.md`
+- `run_all.py` 用于把网页截图与题目处理串联起来，适合一键运行整个流程。
+- `web_capture.py` 的截图流程支持交互：每次截图后保留页面，用户可选择继续截图或关闭页面。
+- `question_helper.py` 只处理本地图片，不会自动填写或提交任何网页内容。
 
-其中：
+## 联系
 
-- `source-*.png` 是原图副本
-- `ocr-*.txt` 是 SiliconFlow 返回的转写文本
-- `result-*.md` 是 DeepSeek 的最终输出
-
-## 提示词文件
-
-[prompt.txt](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\prompt.txt)
-
-- 控制 SiliconFlow OCR 阶段的提示词
-
-[deepseek_prompt.txt](C:\Users\Lycro\Desktop\work\question-helper%20-%20副本\deepseek_prompt.txt)
-
-- 控制 DeepSeek 阶段的提示词
-
-如果你想调整输出风格，优先改这两个文件，不需要直接改 Python 代码。
-
-## 常见问题
-
-### `No supported images found.`
-
-说明 `input_images` 目录里还没有受支持的图片格式，或者文件扩展名不在支持列表里。
-
-### `Please set ... api_key in config.json`
-
-说明对应服务的 API Key 还没有填写。
-
-### `Please set ... model in config.json`
-
-说明对应服务的模型名还没有填写。
-
-### 每次运行结果都没了
-
-这是当前脚本的设计行为：每次运行前会先清空输出目录，确保只保留最新一轮结果。
+如果你有其他功能需求，例如自动筛选题目、支持更多网页模式或自定义输出格式，可继续拓展该项目。
